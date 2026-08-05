@@ -1,0 +1,14 @@
+[run]
+source = backend/app,ml_engine
+omit =
+    */tests/*
+    */node_modules/*
+    */.venv/*
+
+[report]
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if __name__ == .__main__.:
+    raise NotImplementedError
