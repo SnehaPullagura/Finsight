@@ -1,0 +1,31 @@
+name: FinSight CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: actions/setup-buildx-action@v3
+
+    - name: Build Backend Container
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: false
+        tags: finsight-backend:latest
+
+    - name: Build Frontend Container
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: frontend/Dockerfile
+        push: false
+        tags: finsight-frontend:latest
