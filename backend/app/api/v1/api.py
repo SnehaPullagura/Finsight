@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from backend.app.api.v1.endpoints import (
     health, auth, organizations, contacts, companies, leads, pipelines, deals,
     activities, tasks, calendar, communications, documents,
-    products, proposals, quotes, invoices, support, customer_success
+    products, proposals, quotes, invoices, support, customer_success,
+    campaigns, automations
 )
 
 api_router = APIRouter()
@@ -26,3 +27,5 @@ api_router.include_router(quotes.router, prefix="/quotes", tags=["Quotes"])
 api_router.include_router(invoices.router, prefix="/invoices", tags=["Invoices"])
 api_router.include_router(support.router, prefix="/support", tags=["Customer Support"])
 api_router.include_router(customer_success.router, prefix="/customer-success", tags=["Customer Success"])
+api_router.include_router(campaigns.router, prefix="/campaigns", tags=["Marketing Campaigns"])
+api_router.include_router(automations.router, prefix="/automations", tags=["Workflow Automation"])
