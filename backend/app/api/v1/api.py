@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from backend.app.api.v1.endpoints import (
     health, auth, organizations, contacts, companies, leads, pipelines, deals,
     activities, tasks, calendar, communications, documents,
-    products, proposals, quotes, invoices
+    products, proposals, quotes, invoices, support, customer_success
 )
 
 api_router = APIRouter()
@@ -24,3 +24,5 @@ api_router.include_router(products.router, prefix="/products", tags=["Product Ca
 api_router.include_router(proposals.router, prefix="/proposals", tags=["Proposals"])
 api_router.include_router(quotes.router, prefix="/quotes", tags=["Quotes"])
 api_router.include_router(invoices.router, prefix="/invoices", tags=["Invoices"])
+api_router.include_router(support.router, prefix="/support", tags=["Customer Support"])
+api_router.include_router(customer_success.router, prefix="/customer-success", tags=["Customer Success"])
