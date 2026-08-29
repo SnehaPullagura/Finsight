@@ -9,18 +9,18 @@ class CustomerSuccessPlan(UUIDModel, TimestampMixin, SoftDeleteMixin, TenantMixi
     __tablename__ = "customer_success_plans"
 
     company_id: Mapped[str] = mapped_column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
-    owner_id: Optional[Mapped[str]] = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    owner_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     
     status: Mapped[str] = mapped_column(String(50), default="onboarding", nullable=False, index=True) # onboarding, active, at_risk, churned
     health_score: Mapped[int] = mapped_column(Integer, default=80, nullable=False, index=True) # 0 to 100
     health_grade: Mapped[str] = mapped_column(String(20), default="good", nullable=False) # good, warning, critical
     
-    target_renewal_date: Optional[Mapped[date]] = mapped_column(Date, nullable=True, index=True)
-    renewal_value: Optional[Mapped[float]] = mapped_column(Numeric(18, 2), nullable=True)
-    churn_risk_reason: Optional[Mapped[str]] = mapped_column(String(255), nullable=True)
+    target_renewal_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True, index=True)
+    renewal_value: Mapped[Optional[float]] = mapped_column(Numeric(18, 2), nullable=True)
+    churn_risk_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     goals: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
 
-    company: Mapped["backend.app.models.company.Company"]] = relationship("backend.app.models.company.Company")
+    company: Mapped["backend.app.models.company.Company"] = relationship("backend.app.models.company.Company")
     owner: Mapped[Optional["backend.app.models.auth.User"]] = relationship("backend.app.models.auth.User")
     milestones: Mapped[List["OnboardingMilestone"]] = relationship("OnboardingMilestone", back_populates="plan", cascade="all, delete-orphan", order_by="OnboardingMilestone.created_at.asc()")
 
@@ -29,9 +29,9 @@ class OnboardingMilestone(UUIDModel, TimestampMixin):
 
     plan_id: Mapped[str] = mapped_column(String(36), ForeignKey("customer_success_plans.id", ondelete="CASCADE"), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
-    due_date: Optional[Mapped[date]] = mapped_column(Date, nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    due_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    completed_at: Optional[Mapped[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     plan: Mapped["CustomerSuccessPlan"] = relationship("CustomerSuccessPlan", back_populates="milestones")

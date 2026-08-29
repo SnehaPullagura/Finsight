@@ -8,7 +8,7 @@ class ProductCategory(UUIDModel, TimestampMixin, TenantMixin):
     __tablename__ = "product_categories"
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Optional[Mapped[str]] = mapped_column(String(255), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
 
@@ -17,11 +17,11 @@ class Product(UUIDModel, TimestampMixin, SoftDeleteMixin, TenantMixin):
 
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     sku: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    category_id: Optional[Mapped[str]] = mapped_column(String(36), ForeignKey("product_categories.id", ondelete="SET NULL"), nullable=True)
-    description: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
+    category_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("product_categories.id", ondelete="SET NULL"), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     unit_price: Mapped[float] = mapped_column(Numeric(18, 2), default=0.0, nullable=False)
-    cost_price: Optional[Mapped[float]] = mapped_column(Numeric(18, 2), nullable=True)
+    cost_price: Mapped[Optional[float]] = mapped_column(Numeric(18, 2), nullable=True)
     currency: Mapped[str] = mapped_column(String(3), default="USD", nullable=False)
     tax_rate_pct: Mapped[float] = mapped_column(Numeric(5, 2), default=0.0, nullable=False)
     

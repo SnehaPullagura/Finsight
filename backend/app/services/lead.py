@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.exceptions import ConflictException, EntityNotFoundException, ValidationException
 from backend.app.models.lead import Lead, LeadScoringRule

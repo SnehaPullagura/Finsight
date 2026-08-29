@@ -9,7 +9,7 @@ class AutomationWorkflow(UUIDModel, TimestampMixin, SoftDeleteMixin, TenantMixin
     __tablename__ = "automation_workflows"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Optional[Mapped[str]] = mapped_column(String(500), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     
     trigger_event: Mapped[str] = mapped_column(String(100), nullable=False, index=True) # deal.stage_changed, lead.created, lead.score_threshold, task.due, contact.created
@@ -46,7 +46,7 @@ class WorkflowExecutionLog(UUIDModel, TimestampMixin, TenantMixin):
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     entity_id: Mapped[str] = mapped_column(String(36), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False) # success, failed, skipped
-    error_message: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     payload_snapshot: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     workflow: Mapped["AutomationWorkflow"] = relationship("AutomationWorkflow", back_populates="execution_logs")
