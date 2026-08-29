@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, Optional, Union
 import jwt
 from passlib.context import CryptContext
 import pyotp
 import secrets
 from backend.app.core.config import settings
+from backend.app.core.exceptions import AuthenticationException
 
 pwd_context = CryptContext(
     schemes=["argon2", "bcrypt"],
@@ -23,10 +24,11 @@ def create_access_token(
     roles: Optional[list] = None,
     expires_delta: Optional[timedelta] = None
 ) -> str:
+    now = datetime.now(timezone.utc)
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         
     to_encode = {
         "exp": expire,
@@ -34,7 +36,7 @@ def create_access_token(
         "type": "access",
         "tenant_id": str(tenant_id) if tenant_id else None,
         "roles": roles or [],
-        "iat": datetime.utcnow()
+        "iat": now
     }
     return jwt.encode(to_encode, settings.APP_SECRET_KEY, algorithm=settings.ALGORITHM)
 
@@ -43,10 +45,11 @@ def create_refresh_token(
     tenant_id: Optional[str] = None,
     expires_delta: Optional[timedelta] = None
 ) -> str:
+    now = datetime.now(timezone.utc)
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         
     to_encode = {
         "exp": expire,
@@ -54,12 +57,17 @@ def create_refresh_token(
         "type": "refresh",
         "tenant_id": str(tenant_id) if tenant_id else None,
         "jti": secrets.token_hex(16),
-        "iat": datetime.utcnow()
+        "iat": now
     }
     return jwt.encode(to_encode, settings.APP_SECRET_KEY, algorithm=settings.ALGORITHM)
 
 def decode_token(token: str) -> Dict[str, Any]:
-    return jwt.decode(token, settings.APP_SECRET_KEY, algorithms=[settings.ALGORITHM])
+    try:
+        return jwt.decode(token, settings.APP_SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationException("Authorization token has expired")
+    except jwt.InvalidTokenError:
+        raise AuthenticationException("Invalid authorization token")
 
 def generate_totp_secret() -> str:
     return pyotp.random_base32()
