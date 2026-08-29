@@ -3,7 +3,7 @@ from backend.app.api.v1.endpoints import (
     health, auth, organizations, contacts, companies, leads, pipelines, deals,
     activities, tasks, calendar, communications, documents,
     products, proposals, quotes, invoices, support, customer_success,
-    campaigns, automations, search, analytics
+    campaigns, automations, search, analytics, audit
 )
 
 api_router = APIRouter()
@@ -31,3 +31,4 @@ api_router.include_router(campaigns.router, prefix="/campaigns", tags=["Marketin
 api_router.include_router(automations.router, prefix="/automations", tags=["Workflow Automation"])
 api_router.include_router(search.router, prefix="/search", tags=["Global Search"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics & Dashboard"])
+api_router.include_router(audit.router, prefix="/audit", tags=["Audit Logs"])
