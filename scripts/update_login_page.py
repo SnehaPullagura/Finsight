@@ -1,4 +1,9 @@
-import React, { useState } from "react";
+﻿import os
+import sys
+sys.path.insert(0, os.path.abspath("."))
+from scripts.common import write_file
+
+write_file("frontend/src/pages/auth/LoginPage.tsx", """import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Zap, Lock, Mail, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { api } from "../../services/api";
@@ -118,3 +123,5 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+""")
+print("LoginPage updated.")
