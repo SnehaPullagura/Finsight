@@ -354,3 +354,15 @@ export interface DashboardMetrics {
   conversion_funnel: Array<{ stage_name: string; count: number; value: number; conversion_rate_pct: number }>;
   rep_leaderboard: Array<{ user_id: string; user_name: string; deals_won_count: number; revenue_won: number; target: number; quota_attainment_pct: number }>;
 }
+
+export interface Document {
+  id: string;
+  tenant_id: string;
+  name: string;
+  file_size_bytes: number;
+  mime_type: string;
+  is_public: boolean;
+  download_count: number;
+  tags: string[];
+  created_at: string;
+}
