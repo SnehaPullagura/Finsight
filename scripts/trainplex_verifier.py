@@ -20,11 +20,9 @@ def create_submission_zip(output_filename=ZIP_OUTPUT):
     
     with zipfile.ZipFile(output_filename, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(root_dir):
-            # Exclude node_modules, .venv, etc. but KEEP .git!
             dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
             
             for file in files:
-                # Do not zip the output zip or database lock files
                 if file == output_filename or file.endswith(".pyc"):
                     continue
                 file_path = os.path.join(root, file)
@@ -46,28 +44,31 @@ def submit_to_checker(zip_path=ZIP_OUTPUT):
             print(f"Response Status Code: {response.status_code}")
             
             if response.status_code == 200:
-                result = response.json()
-                print("\n" + "="*60)
-                print("TRAINPLEX CHECKER AUDIT RESULT:")
-                print("="*60)
-                print(f"Overall Status   : {result.get('status', 'UNKNOWN')}")
-                print(f"Overall Score    : {result.get('score', 0)} / {result.get('max_score', 100)}")
-                print(f"Passed Checks    : {result.get('passed_count', 0)} / {result.get('total_checks', 14)}")
-                print(f"Readiness Status : {result.get('readiness', 'UNKNOWN')}")
-                print("-"*60)
+                data = response.json()
+                tp = data.get("trainplex", {})
+                summary = tp.get("summary", {})
+                checks = tp.get("checks", [])
                 
-                checks = result.get("checks", [])
+                print("\n" + "="*70)
+                print("TRAINPLEX CHECKER AUDIT RESULT (14-POINT VERIFICATION)")
+                print("="*70)
+                print(f"Passed Checks    : {summary.get('passed', 0)} / {summary.get('total', 14)}")
+                print(f"Failed Checks    : {summary.get('failed', 0)}")
+                print(f"Warnings         : {summary.get('warnings', 0)}")
+                print(f"Readiness Score  : {summary.get('score_pct', 0)}%")
+                print(f"Ready for Review : {summary.get('ready', False)}")
+                print("-"*70)
+                
                 for idx, c in enumerate(checks, 1):
-                    status_symbol = "✔ [PASS]" if c.get("passed") else "✖ [FAIL]"
-                    print(f"{idx:2d}. {status_symbol} {c.get('name', 'Check')}: {c.get('details', '')}")
-                    
-                if result.get("recommendations"):
-                    print("\nRecommendations / Notes:")
-                    for rec in result.get("recommendations", []):
-                        print(f"  • {rec}")
+                    status_symbol = "[PASS]" if c.get("status") == "pass" else "[FAIL]"
+                    print(f"{idx:2d}. {status_symbol} {c.get('name')}")
+                    print(f"    Category : {c.get('category')}")
+                    print(f"    Details  : {c.get('details')}")
+                    print(f"    Fix      : {c.get('fix')}")
+                    print()
                         
-                print("="*60 + "\n")
-                return result
+                print("="*70 + "\n")
+                return data
             else:
                 print(f"Error from checker: {response.text}")
                 return None
