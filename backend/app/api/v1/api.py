@@ -3,7 +3,7 @@ from backend.app.api.v1.endpoints import (
     health, auth, organizations, contacts, companies, leads, pipelines, deals,
     activities, tasks, calendar, communications, documents,
     products, proposals, quotes, invoices, support, customer_success,
-    campaigns, automations, search, analytics, cpq, billing, advanced_analytics
+    campaigns, automations, search, analytics, cpq, billing, advanced_analytics, integrations_hub
 )
 
 api_router = APIRouter()
@@ -34,3 +34,4 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytic
 api_router.include_router(cpq.router, prefix="/cpq", tags=["CPQ & Pricing Engine"])
 api_router.include_router(billing.router, prefix="/billing", tags=["Subscription Billing"])
 api_router.include_router(advanced_analytics.router, prefix="/advanced-analytics", tags=["Advanced Analytics & Forecasting"])
+api_router.include_router(integrations_hub.router, prefix="/integrations-hub", tags=["Integrations Hub & Migration"])
