@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from backend.app.schemas.analytics import (
+from backend.app.analytics.schemas import (
     ForecastRequest,
     ForecastResponse,
     AttributionRequest,

@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+﻿api_code = """from fastapi import APIRouter
 from backend.app.api.v1.endpoints import (
     health, auth, organizations, contacts, companies, leads, pipelines, deals,
     activities, tasks, calendar, communications, documents,
@@ -38,3 +38,9 @@ api_router.include_router(advanced_analytics.router, prefix="/advanced-analytics
 api_router.include_router(integrations_hub.router, prefix="/integrations-hub", tags=["Integrations Hub & Migration"])
 api_router.include_router(dag_workflows.router, prefix="/dag-workflows", tags=["DAG Workflow Engine"])
 api_router.include_router(governance.router, prefix="/governance", tags=["Data Governance & Compliance"])
+"""
+
+with open("backend/app/api/v1/api.py", "w", encoding="utf-8") as f:
+    f.write(api_code)
+
+print("Rewrote api.py cleanly.")

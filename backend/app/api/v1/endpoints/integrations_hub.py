@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_tenant_id
-from backend.app.schemas.integrations import (
+from backend.app.integrations.schemas import (
     ConnectionCreateRequest,
     ConnectionResponse,
     MigrationPreviewRequest,

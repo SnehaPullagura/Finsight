@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from backend.app.schemas.cpq import (
+from backend.app.cpq.schemas import (
     CurrencyConvertRequest,
     CurrencyConvertResponse,
     PriceCalculationItem,
