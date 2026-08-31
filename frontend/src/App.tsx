@@ -1,3 +1,7 @@
+import { CPQPage } from "./pages/cpq/CPQPage";
+import { AdvancedAnalyticsPage } from "./pages/analytics/AdvancedAnalyticsPage";
+import { IntegrationsPage } from "./pages/integrations/IntegrationsPage";
+import { GovernancePage } from "./pages/governance/GovernancePage";
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -59,6 +63,10 @@ export const App: React.FC = () => {
             <Route path="customer-success" element={<CustomerSuccessPage />} />
             <Route path="campaigns" element={<CampaignsPage />} />
             <Route path="automations" element={<AutomationsPage />} />
+            <Route path="cpq" element={<CPQPage />} />
+            <Route path="advanced-analytics" element={<AdvancedAnalyticsPage />} />
+            <Route path="integrations" element={<IntegrationsPage />} />
+            <Route path="governance" element={<GovernancePage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>

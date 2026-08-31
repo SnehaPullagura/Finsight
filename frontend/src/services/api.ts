@@ -45,6 +45,10 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
+  get: (url: string, config?: any) => apiClient.get(url, config),
+  post: (url: string, data?: any, config?: any) => apiClient.post(url, data, config),
+  put: (url: string, data?: any, config?: any) => apiClient.put(url, data, config),
+  delete: (url: string, config?: any) => apiClient.delete(url, config),
   // Auth
   login: (data: any) => apiClient.post("/auth/login", data),
   register: (data: any) => apiClient.post("/auth/register", data),
