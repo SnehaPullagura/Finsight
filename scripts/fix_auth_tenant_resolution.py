@@ -1,4 +1,9 @@
-import hashlib
+﻿import os
+import sys
+sys.path.insert(0, os.path.abspath("."))
+from scripts.common import write_file
+
+write_file("backend/app/services/auth.py", """import hashlib
 import secrets
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
@@ -182,3 +187,6 @@ class AuthService:
         session = await self.session_repo.get_by_token_hash(token_h)
         if session:
             await self.session_repo.update(session, {"is_revoked": True})
+""")
+
+print("Updated AuthService with clean tenant resolution and registration org setup.")
