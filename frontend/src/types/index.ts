@@ -1,368 +1,208 @@
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  first_name: string;
-  last_name: string;
-  phone?: string;
-  avatar_url?: string;
+  full_name: string;
+  role: string;
+  preferred_currency: string;
   is_active: boolean;
-  is_verified: boolean;
-  is_superuser: boolean;
-  mfa_enabled: boolean;
   created_at: string;
-  roles: string[];
 }
 
-export interface Organization {
-  id: string;
+export interface FinancialAccount {
+  id: number;
+  name: string;
+  account_type: string;
+  account_number_masked: string;
+  institution_name: string;
+  currency: string;
+  current_balance: number;
+  available_balance: number;
+  credit_limit?: number;
+  interest_rate?: number;
+  status: string;
+  is_primary: boolean;
+  last_reconciled_at?: string;
+  notes?: string;
+}
+
+export interface Category {
+  id: number;
   name: string;
   slug: string;
-  domain?: string;
-  plan_tier: string;
-  is_active: boolean;
-  logo_url?: string;
-  settings: Record<string, any>;
-  created_at: string;
+  group: string;
+  icon: string;
+  color: string;
 }
 
-export interface Contact {
-  id: string;
-  tenant_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  secondary_email?: string;
-  phone?: string;
-  mobile_phone?: string;
-  title?: string;
-  department?: string;
-  company_id?: string;
-  owner_id?: string;
-  lifecycle_stage: string;
-  lead_source?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  linkedin_url?: string;
-  is_do_not_call: boolean;
-  is_do_not_email: boolean;
-  custom_fields: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Company {
-  id: string;
-  tenant_id: string;
-  name: string;
-  legal_name?: string;
-  domain?: string;
-  website?: string;
-  industry?: string;
-  annual_revenue?: number;
-  currency: string;
-  employee_count?: number;
-  parent_company_id?: string;
-  owner_id?: string;
-  phone?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  linkedin_url?: string;
-  description?: string;
-  custom_fields: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Lead {
-  id: string;
-  tenant_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  company_name?: string;
-  title?: string;
-  status: string;
-  source: string;
-  score: number;
-  qualification_grade: string;
-  qualification_details: Record<string, any>;
-  estimated_budget?: number;
-  employee_count?: number;
-  industry?: string;
-  intent_score: number;
-  engagement_count: number;
-  owner_id?: string;
-  converted_at?: string;
-  converted_contact_id?: string;
-  converted_company_id?: string;
-  converted_deal_id?: string;
-  notes?: string;
-  custom_fields: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PipelineStage {
-  id: string;
-  pipeline_id: string;
-  name: string;
-  stage_order: number;
-  probability: number;
-  stage_type: string;
-  sla_days?: number;
-  created_at: string;
-}
-
-export interface Pipeline {
-  id: string;
-  name: string;
-  description?: string;
-  is_default: boolean;
-  is_active: boolean;
-  stages: PipelineStage[];
-  created_at: string;
-}
-
-export interface Deal {
-  id: string;
-  tenant_id: string;
-  name: string;
-  value: number;
-  currency: string;
-  probability: number;
-  expected_close_date?: string;
-  actual_close_date?: string;
-  pipeline_id: string;
-  stage_id: string;
-  company_id?: string;
-  contact_id?: string;
-  owner_id?: string;
-  status: string;
-  loss_reason?: string;
-  custom_fields: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface KanbanColumn {
-  stage_id: string;
-  stage_name: string;
-  probability: number;
-  stage_type: string;
-  deals: Deal[];
-  total_value: number;
-  deal_count: number;
-}
-
-export interface KanbanBoard {
-  pipeline_id: string;
-  pipeline_name: string;
-  columns: KanbanColumn[];
-}
-
-export interface Activity {
-  id: string;
-  tenant_id: string;
-  entity_type: string;
-  entity_id: string;
-  activity_type: string;
-  title: string;
-  description?: string;
-  performed_at: string;
-  duration_minutes?: number;
-  outcome?: string;
-  sentiment?: string;
-  user_id?: string;
-  metadata_json: Record<string, any>;
-  created_at: string;
-}
-
-export interface Task {
-  id: string;
-  tenant_id: string;
-  title: string;
-  description?: string;
-  priority: string;
-  status: string;
-  due_date?: string;
-  completed_at?: string;
-  entity_type?: string;
-  entity_id?: string;
-  assigned_to_id?: string;
-  created_by_id?: string;
-  is_recurring: boolean;
-  recurrence_rule?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CalendarEvent {
-  id: string;
-  tenant_id: string;
-  title: string;
-  description?: string;
-  location?: string;
-  meeting_url?: string;
-  start_time: string;
-  end_time: string;
-  is_all_day: boolean;
-  entity_type?: string;
-  entity_id?: string;
-  organizer_id: string;
-  attendees: Array<{ email: string; name?: string; status: string; is_organizer: boolean }>;
-  created_at: string;
-}
-
-export interface Product {
-  id: string;
-  tenant_id: string;
-  name: string;
-  sku: string;
-  category_id?: string;
-  description?: string;
-  unit_price: number;
-  currency: string;
-  tax_rate_pct: number;
-  is_active: boolean;
-  is_service: boolean;
-  inventory_stock: number;
-  created_at: string;
-}
-
-export interface Proposal {
-  id: string;
-  tenant_id: string;
-  proposal_number: string;
-  title: string;
-  status: string;
-  deal_id?: string;
-  company_id?: string;
-  contact_id?: string;
-  subtotal: number;
-  discount_amount: number;
-  tax_amount: number;
-  total_amount: number;
-  currency: string;
-  valid_until?: string;
-  created_at: string;
-}
-
-export interface Quote {
-  id: string;
-  tenant_id: string;
-  quote_number: string;
-  status: string;
-  deal_id?: string;
-  total_amount: number;
-  currency: string;
-  expiration_date?: string;
-  created_at: string;
-}
-
-export interface Invoice {
-  id: string;
-  tenant_id: string;
-  invoice_number: string;
-  status: string;
-  payment_status: string;
-  issue_date: string;
-  due_date: string;
-  subtotal: number;
-  tax_amount: number;
-  total_amount: number;
-  amount_paid: number;
-  currency: string;
-  created_at: string;
-}
-
-export interface Ticket {
-  id: string;
-  tenant_id: string;
-  ticket_number: string;
-  subject: string;
+export interface Transaction {
+  id: number;
+  account_id: number;
+  category_id?: number;
+  amount: number;
+  transaction_type: 'income' | 'expense' | 'transfer' | 'refund' | 'fee' | 'interest';
+  transaction_date: string;
   description: string;
-  priority: string;
+  merchant_name?: string;
   status: string;
-  category: string;
-  contact_id?: string;
-  company_id?: string;
-  assigned_to_id?: string;
-  is_escalated: boolean;
-  resolved_at?: string;
-  resolution_notes?: string;
-  created_at: string;
-  updated_at: string;
+  is_recurring: boolean;
+  is_discretionary: boolean;
+  confidence_score: number;
+  category?: Category;
 }
 
-export interface CustomerSuccessPlan {
-  id: string;
-  tenant_id: string;
-  company_id: string;
-  owner_id?: string;
-  status: string;
-  health_score: number;
-  health_grade: string;
-  target_renewal_date?: string;
-  renewal_value?: number;
-  churn_risk_reason?: string;
-  goals: string[];
-  milestones: Array<{ id: string; title: string; is_completed: boolean; due_date?: string }>;
-  created_at: string;
-}
-
-export interface Campaign {
-  id: string;
-  tenant_id: string;
+export interface BudgetProgress {
+  id: number;
   name: string;
-  type: string;
-  status: string;
-  segment_id?: string;
-  template_id?: string;
-  total_recipients: number;
-  sent_count: number;
-  open_count: number;
-  click_count: number;
-  conversion_count: number;
-  revenue_attributed: number;
-  created_at: string;
+  allocated_amount: number;
+  spent_amount: number;
+  remaining_amount: number;
+  percentage_used: number;
+  is_overbudget: boolean;
+  status: 'good' | 'warning' | 'exceeded';
+  category?: Category;
 }
 
-export interface AutomationWorkflow {
-  id: string;
-  tenant_id: string;
+export interface FinancialGoal {
+  id: number;
+  name: string;
+  goal_type: string;
+  target_amount: number;
+  current_amount: number;
+  target_date: string;
+  monthly_contribution: number;
+  percentage_completed: number;
+  projected_completion_date?: string;
+  sufficiency_status: 'on_track' | 'behind' | 'ahead';
+  notes?: string;
+}
+
+export interface RecurringPayment {
+  id: number;
+  merchant_name: string;
+  amount: number;
+  cadence: string;
+  next_expected_date: string;
+  last_payment_date?: string;
+  is_active: boolean;
+  category?: Category;
+}
+
+export interface CashFlowPoint {
+  date: string;
+  cash_in: number;
+  cash_out: number;
+  net_cash_flow: number;
+  projected_balance: number;
+}
+
+export interface CashFlowSummary {
+  total_cash_in: number;
+  total_cash_out: number;
+  net_cash_flow: number;
+  savings_rate_percent: number;
+  average_daily_burn_rate: number;
+  liquidity_runway_days: number;
+  daily_timeline: CashFlowPoint[];
+  category_cash_out_breakdown: Record<string, number>;
+}
+
+export interface HealthPillar {
+  pillar_name: string;
+  score: number;
+  weight: number;
+  status: 'strong' | 'moderate' | 'weak';
+  metric_value: string;
+  description: string;
+}
+
+export interface FinancialHealth {
+  overall_score: number;
+  grade: string;
+  score_change_mom: number;
+  explanation: string;
+  pillars: HealthPillar[];
+  strengths: string[];
+  attention_areas: string[];
+  recommended_actions: string[];
+}
+
+export interface Scenario {
+  id: number;
   name: string;
   description?: string;
-  is_active: boolean;
-  trigger_event: string;
-  conditions: Array<{ id: string; field_path: string; operator: string; target_value: string }>;
-  actions: Array<{ id: string; action_type: string; action_config: Record<string, any>; execution_order: number }>;
+  monthly_income_delta: number;
+  monthly_expense_delta: number;
+  one_time_lump_sum: number;
+  loan_amount: number;
+  calculated_monthly_emi: number;
+  projected_6m_balance: number;
+  projected_12m_balance: number;
+  health_score_delta: number;
+  is_feasible: boolean;
+  feasibility_notes?: string;
+}
+
+export interface Anomaly {
+  id: number;
+  transaction_id: number;
+  anomaly_type: string;
+  anomaly_score: number;
+  severity: string;
+  explanation: string;
+  is_acknowledged: boolean;
+  transaction?: Transaction;
   created_at: string;
 }
 
-export interface DashboardMetrics {
-  total_pipeline_value: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  weighted_forecast: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  win_rate: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  active_deals_count: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  lead_conversion_rate: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  customer_avg_health: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  sla_compliance_rate: { label: string; value: number; formatted_value: string; change_pct?: number; trend?: string };
-  revenue_trend: Array<{ period: string; revenue: number; deals_count: number }>;
-  conversion_funnel: Array<{ stage_name: string; count: number; value: number; conversion_rate_pct: number }>;
-  rep_leaderboard: Array<{ user_id: string; user_name: string; deals_won_count: number; revenue_won: number; target: number; quota_attainment_pct: number }>;
+export interface ForecastResponse {
+  horizon_days: number;
+  predicted_total_income: number;
+  predicted_total_expenses: number;
+  predicted_net_savings: number;
+  current_balance: number;
+  projected_ending_balance: number;
+  shortage_risk_probability: number;
+  risk_level: string;
+  savings_trajectory: Record<string, number>;
+  daily_projections: Array<{
+    date: string;
+    predicted_balance: number;
+    lower_bound: number;
+    upper_bound: number;
+  }>;
 }
 
-export interface Document {
-  id: string;
-  tenant_id: string;
-  name: string;
-  file_size_bytes: number;
-  mime_type: string;
-  is_public: boolean;
-  download_count: number;
-  tags: string[];
+export interface AnalyticsOverview {
+  mom: {
+    current_month: string;
+    previous_month: string;
+    income_current: number;
+    income_previous: number;
+    income_growth_percent: number;
+    expense_current: number;
+    expense_previous: number;
+    expense_growth_percent: number;
+    savings_rate_current: number;
+  };
+  velocity: {
+    daily_burn_rate: number;
+    projected_month_end_expense: number;
+    days_elapsed: number;
+    days_remaining: number;
+    pace_status: string;
+  };
+  financial_stability_index: number;
+  recurring_expense_ratio: number;
+  discretionary_ratio: number;
+  top_merchants: Array<{ merchant: string; amount: number }>;
+}
+
+export interface NotificationItem {
+  id: number;
+  notification_type: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  action_url?: string;
   created_at: string;
 }
