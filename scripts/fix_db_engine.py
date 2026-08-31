@@ -1,4 +1,9 @@
-from typing import AsyncGenerator
+﻿import os
+import sys
+sys.path.insert(0, os.path.abspath("."))
+from scripts.common import write_file
+
+write_file("backend/app/core/database.py", """from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -57,3 +62,5 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+""")
+print("database.py updated.")

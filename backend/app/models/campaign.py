@@ -9,8 +9,8 @@ class CampaignSegment(UUIDModel, TimestampMixin, TenantMixin):
     __tablename__ = "campaign_segments"
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Optional[Mapped[str]] = mapped_column(String(255), nullable=True)
-    target_entity: Mapped[str] = mapped_column(String(50), default="contact", nullable=False) # contact, lead
+    description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    target_entity: Mapped[str] = mapped_column(String(50), default="contact", nullable=False)
     filter_criteria: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     campaigns: Mapped[List["Campaign"]] = relationship("Campaign", back_populates="segment")
@@ -19,22 +19,18 @@ class Campaign(UUIDModel, TimestampMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = "campaigns"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    type: Mapped[str] = mapped_column(String(50), default="email", nullable=False) # email, sms
-    status: Mapped[str] = mapped_column(String(50), default="draft", nullable=False, index=True) # draft, scheduled, running, completed, cancelled
-    
-    segment_id: Optional[Mapped[str]] = mapped_column(String(36), ForeignKey("campaign_segments.id", ondelete="SET NULL"), nullable=True)
-    template_id: Optional[Mapped[str]] = mapped_column(String(36), nullable=True)
-    
-    scheduled_at: Optional[Mapped[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    completed_at: Optional[Mapped[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    
+    type: Mapped[str] = mapped_column(String(50), default="email", nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="draft", nullable=False, index=True)
+    segment_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("campaign_segments.id", ondelete="SET NULL"), nullable=True)
+    template_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    scheduled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     total_recipients: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     sent_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     open_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     click_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     conversion_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    
-    budget: Optional[Mapped[float]] = mapped_column(Numeric(18, 2), nullable=True)
+    budget: Mapped[Optional[float]] = mapped_column(Numeric(18, 2), nullable=True)
     revenue_attributed: Mapped[float] = mapped_column(Numeric(18, 2), default=0.0, nullable=False)
 
     segment: Mapped[Optional["CampaignSegment"]] = relationship("CampaignSegment", back_populates="campaigns")
@@ -47,6 +43,6 @@ class CampaignRecipient(UUIDModel, TimestampMixin):
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     entity_id: Mapped[str] = mapped_column(String(36), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
-    status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False) # pending, sent, opened, clicked, bounced
+    status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
 
     campaign: Mapped["Campaign"] = relationship("Campaign", back_populates="recipients")

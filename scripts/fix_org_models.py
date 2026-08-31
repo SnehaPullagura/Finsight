@@ -1,4 +1,9 @@
-import uuid
+﻿import os
+import sys
+sys.path.insert(0, os.path.abspath("."))
+from scripts.common import write_file
+
+write_file("backend/app/models/organization.py", """import uuid
 from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint, JSON
@@ -79,3 +84,5 @@ class OrganizationInvitation(UUIDModel, TimestampMixin, TenantMixin):
     status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
 
     organization: Mapped["Organization"] = relationship("Organization", back_populates="invitations")
+""")
+print("organization.py updated with proper ForeignKeys.")

@@ -9,10 +9,9 @@ class AutomationWorkflow(UUIDModel, TimestampMixin, SoftDeleteMixin, TenantMixin
     __tablename__ = "automation_workflows"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Optional[Mapped[str]] = mapped_column(String(500), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    
-    trigger_event: Mapped[str] = mapped_column(String(100), nullable=False, index=True) # deal.stage_changed, lead.created, lead.score_threshold, task.due, contact.created
+    trigger_event: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     trigger_config: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     conditions: Mapped[List["WorkflowCondition"]] = relationship("WorkflowCondition", back_populates="workflow", cascade="all, delete-orphan")
@@ -23,8 +22,8 @@ class WorkflowCondition(UUIDModel):
     __tablename__ = "workflow_conditions"
 
     workflow_id: Mapped[str] = mapped_column(String(36), ForeignKey("automation_workflows.id", ondelete="CASCADE"), nullable=False, index=True)
-    field_path: Mapped[str] = mapped_column(String(100), nullable=False) # e.g. value, score, lifecycle_stage
-    operator: Mapped[str] = mapped_column(String(20), nullable=False) # gt, gte, lt, lte, eq, neq, contains, in
+    field_path: Mapped[str] = mapped_column(String(100), nullable=False)
+    operator: Mapped[str] = mapped_column(String(20), nullable=False)
     target_value: Mapped[str] = mapped_column(String(255), nullable=False)
 
     workflow: Mapped["AutomationWorkflow"] = relationship("AutomationWorkflow", back_populates="conditions")
@@ -33,7 +32,7 @@ class WorkflowAction(UUIDModel):
     __tablename__ = "workflow_actions"
 
     workflow_id: Mapped[str] = mapped_column(String(36), ForeignKey("automation_workflows.id", ondelete="CASCADE"), nullable=False, index=True)
-    action_type: Mapped[str] = mapped_column(String(50), nullable=False) # send_email, create_task, update_field, reassign_owner, trigger_webhook, request_approval
+    action_type: Mapped[str] = mapped_column(String(50), nullable=False)
     action_config: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     execution_order: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
@@ -45,8 +44,8 @@ class WorkflowExecutionLog(UUIDModel, TimestampMixin, TenantMixin):
     workflow_id: Mapped[str] = mapped_column(String(36), ForeignKey("automation_workflows.id", ondelete="CASCADE"), nullable=False, index=True)
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     entity_id: Mapped[str] = mapped_column(String(36), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False) # success, failed, skipped
-    error_message: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     payload_snapshot: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     workflow: Mapped["AutomationWorkflow"] = relationship("AutomationWorkflow", back_populates="execution_logs")

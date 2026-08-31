@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.exceptions import ConflictException, EntityNotFoundException, ValidationException
 from backend.app.models.lead import Lead, LeadScoringRule
@@ -64,11 +64,23 @@ class LeadQualificationEngine:
         total_score = 20 # Base score
         breakdown = {}
 
-        for rule in rules:
-            points = cls.evaluate_rule(lead, rule)
-            if points > 0:
-                total_score += points
-                breakdown[rule.name] = points
+        if rules:
+            for rule in rules:
+                points = cls.evaluate_rule(lead, rule)
+                if points > 0:
+                    total_score += points
+                    breakdown[rule.name] = points
+        else:
+            # Built-in heuristic when no custom tenant rules configured
+            if (lead.estimated_budget or 0) >= 50000:
+                total_score += 30
+                breakdown["Enterprise Budget"] = 30
+            if (lead.intent_score or 0) >= 50:
+                total_score += 25
+                breakdown["High Intent"] = 25
+            if (lead.employee_count or 0) >= 50:
+                total_score += 15
+                breakdown["Target Scale"] = 15
 
         total_score = max(0, min(100, total_score))
         
@@ -88,6 +100,7 @@ class LeadQualificationEngine:
 class LeadService(BaseService[Lead, LeadRepository]):
     def __init__(self, db: AsyncSession):
         super().__init__(LeadRepository(db))
+        self.db = db
         self.rule_repo = LeadScoringRuleRepository(db)
         self.contact_repo = ContactRepository(db)
         self.company_repo = CompanyRepository(db)
