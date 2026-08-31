@@ -50,6 +50,11 @@ dev = [
     "pytest-cov>=5.0.0"
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*", "ml_engine*"]
+exclude = ["tests*", "frontend*"]
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra -q --import-mode=importlib"
