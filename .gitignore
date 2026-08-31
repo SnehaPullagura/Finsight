@@ -62,3 +62,7 @@ ml-engine/cache/
 *.joblib
 !ml-engine/models/*.joblib
 !ml-engine/models/*.json
+
+# Archives & Temporary Artifacts
+*.zip
+finsight_submission.zip
