@@ -58,6 +58,11 @@ class UserSessionRepository(BaseRepository[UserSession]):
     def __init__(self, db: AsyncSession):
         super().__init__(UserSession, db)
 
+    async def get_by_token_hash(self, refresh_token_hash: str) -> Optional[UserSession]:
+        query = select(UserSession).where(UserSession.refresh_token_hash == refresh_token_hash)
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
     async def get_valid_session(self, user_id: str, refresh_token_hash: str) -> Optional[UserSession]:
         query = select(UserSession).where(
             UserSession.user_id == user_id,

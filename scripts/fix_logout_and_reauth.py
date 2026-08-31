@@ -1,4 +1,27 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+﻿import os
+import sys
+sys.path.insert(0, os.path.abspath("."))
+from scripts.common import write_file
+
+def run():
+    # 1. Update backend/app/repositories/auth.py
+    with open("backend/app/repositories/auth.py", "r", encoding="utf-8") as f:
+        content = f.read()
+
+    if "get_by_token_hash" not in content:
+        content = content.replace("""    async def get_valid_session(self, user_id: str, refresh_token_hash: str) -> Optional[UserSession]:""",
+"""    async def get_by_token_hash(self, refresh_token_hash: str) -> Optional[UserSession]:
+        query = select(UserSession).where(UserSession.refresh_token_hash == refresh_token_hash)
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
+    async def get_valid_session(self, user_id: str, refresh_token_hash: str) -> Optional[UserSession]:""")
+
+        with open("backend/app/repositories/auth.py", "w", encoding="utf-8") as f:
+            f.write(content)
+
+    # 2. Update frontend/src/context/AuthContext.tsx
+    write_file("frontend/src/context/AuthContext.tsx", """import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, Organization } from "../types";
 import { api } from "../services/api";
 
@@ -125,3 +148,9 @@ export const useAuth = () => {
   }
   return context;
 };
+""")
+
+    print("Updated AuthContext and UserSessionRepository.")
+
+if __name__ == '__main__':
+    run()
