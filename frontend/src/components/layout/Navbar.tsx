@@ -1,73 +1,100 @@
-import React from "react";
-import { Search, Sparkles, Bell, Building, LogOut, ChevronDown, User } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { Bell, Shield, User as UserIcon, LogOut, Search, Activity } from 'lucide-react';
+import { api } from '../../services/api';
+import { NotificationItem } from '../../types';
 
-interface Props {
-  onOpenSearch: () => void;
-  onOpenAI: () => void;
-}
+export const Navbar: React.FC = () => {
+  const { user, logout } = useAuth();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [showNotifs, setShowNotifs] = useState(false);
 
-export const Navbar: React.FC<Props> = ({ onOpenSearch, onOpenAI }) => {
-  const { user, organization, logout } = useAuth();
+  useEffect(() => {
+    if (user) {
+      api.getNotifications().then(setNotifications).catch(() => {});
+    }
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200/80 px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* Search trigger */}
-      <div className="flex items-center gap-4 flex-1 max-w-lg">
-        <button
-          onClick={onOpenSearch}
-          className="w-full flex items-center justify-between px-3.5 py-2 text-xs text-gray-400 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all"
-        >
-          <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-gray-400" />
-            <span>Search anything in ClientFlow...</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 rounded shadow-2xs">
-            Ctrl + K
-          </kbd>
-        </button>
+    <header className="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 flex items-center justify-between sticky top-0 z-30">
+      <div className="flex items-center gap-4 flex-1 max-w-md">
+        <div className="relative w-full">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search transactions, accounts, merchants..."
+            className="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+          />
+        </div>
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center space-x-3">
-        {/* AI Copilot trigger */}
-        <button
-          onClick={onOpenAI}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-lg transition-all shadow-2xs"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-          <span>AI Copilot</span>
-        </button>
+      <div className="flex items-center gap-4">
+        {/* Live System Status Pill */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Engine Active</span>
+        </div>
 
-        {/* Organization tag */}
-        {organization && (
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md border border-gray-200">
-            <Building className="w-3.5 h-3.5 text-gray-500" />
-            <span>{organization.name}</span>
-          </div>
-        )}
+        {/* Notifications Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowNotifs(!showNotifs)}
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white transition relative"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </button>
 
-        {/* User profile & logout */}
-        {user && (
-          <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-semibold text-xs shadow-2xs">
-                {user.first_name[0]}{user.last_name[0]}
+          {showNotifs && (
+            <div className="absolute right-0 mt-2 w-80 rounded-2xl glass-dropdown shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-2">
+                <h4 className="font-bold text-xs text-slate-200">Notifications ({unreadCount})</h4>
+                <button
+                  onClick={() => api.markAllNotificationsRead().then(() => setNotifications(n => n.map(x => ({...x, is_read: true}))))}
+                  className="text-[10px] text-indigo-400 hover:underline"
+                >
+                  Mark all read
+                </button>
               </div>
-              <div className="hidden md:block text-left">
-                <div className="text-xs font-semibold text-gray-800">{user.first_name} {user.last_name}</div>
-                <div className="text-[10px] text-gray-400">{user.email}</div>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {notifications.length === 0 ? (
+                  <p className="text-xs text-slate-500 py-4 text-center">No new notifications</p>
+                ) : (
+                  notifications.map(n => (
+                    <div key={n.id} className={`p-2.5 rounded-xl text-xs ${n.is_read ? 'bg-slate-900/40 text-slate-400' : 'bg-indigo-950/40 border border-indigo-500/20 text-slate-200'}`}>
+                      <p className="font-semibold text-white">{n.title}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">{n.message}</p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="p-1.5 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          )}
+        </div>
+
+        {/* User Profile */}
+        <div className="flex items-center gap-3 pl-2 border-l border-slate-800">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold text-xs text-white shadow-lg shadow-indigo-500/20">
+            {user?.full_name?.charAt(0) || 'U'}
           </div>
-        )}
+          <div className="hidden lg:block text-left">
+            <p className="text-xs font-bold text-slate-200 leading-tight">{user?.full_name || 'Guest User'}</p>
+            <p className="text-[10px] text-slate-400">{user?.preferred_currency || 'INR'} • {user?.role || 'user'}</p>
+          </div>
+          <button
+            onClick={logout}
+            title="Logout"
+            className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </header>
   );
