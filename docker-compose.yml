@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.9"
 
 services:
   postgres:
@@ -6,16 +6,15 @@ services:
     container_name: clientflow_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-clientflow_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clientflow_secret_password}
-      POSTGRES_DB: ${POSTGRES_DB:-clientflow_db}
+      POSTGRES_DB: ${POSTGRES_DB:-clientflow}
+      POSTGRES_USER: ${POSTGRES_USER:-clientflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clientflow_secure_password}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infrastructure/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clientflow_user} -d ${POSTGRES_DB:-clientflow_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clientflow} -d ${POSTGRES_DB:-clientflow}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,6 +23,7 @@ services:
     image: redis:7-alpine
     container_name: clientflow_redis
     restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     volumes:
@@ -37,7 +37,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: docker/Dockerfile.backend
     container_name: clientflow_backend
     restart: unless-stopped
     depends_on:
@@ -46,23 +46,19 @@ services:
       redis:
         condition: service_healthy
     env_file:
-      - .env
+      - .env.example
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-clientflow_user}:${POSTGRES_PASSWORD:-clientflow_secret_password}@postgres:5432/${POSTGRES_DB:-clientflow_db}
-      - DATABASE_SYNC_URL=postgresql+psycopg2://${POSTGRES_USER:-clientflow_user}:${POSTGRES_PASSWORD:-clientflow_secret_password}@postgres:5432/${POSTGRES_DB:-clientflow_db}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-clientflow}:${POSTGRES_PASSWORD:-clientflow_secure_password}@postgres:5432/${POSTGRES_DB:-clientflow}
+      DATABASE_SYNC_URL: postgresql://${POSTGRES_USER:-clientflow}:${POSTGRES_PASSWORD:-clientflow_secure_password}@postgres:5432/${POSTGRES_DB:-clientflow}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app/backend
-      - ./media_uploads:/app/media_uploads
 
-  worker:
+  celery_worker:
     build:
       context: .
-      dockerfile: workers/Dockerfile
+      dockerfile: docker/Dockerfile.worker
     container_name: clientflow_worker
     restart: unless-stopped
     depends_on:
@@ -70,39 +66,35 @@ services:
         condition: service_started
       redis:
         condition: service_healthy
-    env_file:
-      - .env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-clientflow_user}:${POSTGRES_PASSWORD:-clientflow_secret_password}@postgres:5432/${POSTGRES_DB:-clientflow_db}
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-    volumes:
-      - ./backend:/app/backend
-      - ./workers:/app/workers
-      - ./media_uploads:/app/media_uploads
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-clientflow}:${POSTGRES_PASSWORD:-clientflow_secure_password}@postgres:5432/${POSTGRES_DB:-clientflow}
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    container_name: clientflow_beat
+    restart: unless-stopped
+    command: ["celery", "-A", "workers.celery_app.celery_app", "beat", "--loglevel=info"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/1
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/Dockerfile.frontend
     container_name: clientflow_frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
     depends_on:
-      - backend
-
-  reverse-proxy:
-    image: nginx:alpine
-    container_name: clientflow_gateway
-    restart: unless-stopped
+      backend:
+        condition: service_started
     ports:
       - "80:80"
-    volumes:
-      - ./infrastructure/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - frontend
-      - backend
 
 volumes:
   postgres_data:

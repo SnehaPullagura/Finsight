@@ -1,0 +1,30 @@
+# Multi-stage production Dockerfile for ClientFlow CRM Backend
+FROM python:3.13-slim AS builder
+
+WORKDIR /build
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.13-slim AS runner
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends libpq5 curl && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app
+
+COPY backend /app/backend
+COPY pyproject.toml /app/pyproject.toml
+
+# Non-root security user
+RUN useradd -m -u 1001 clientflow && chown -R clientflow:clientflow /app
+USER clientflow
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3   CMD curl -f http://localhost:8000/api/v1/health || exit 1
+
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
