@@ -27,7 +27,8 @@ def setup_git_history():
     # 1. Initial Setup (Aug 05, 2026)
     d1 = "2026-08-05 10:00:00 +0530"
     run_git(["checkout", "-B", "main"])
-    run_git(["add", ".gitignore", "LICENSE", "pyproject.toml", ".env.example", ".github"])
+    run_git(["rm", "-f", ".env.example"])
+    run_git(["add", ".gitignore", "LICENSE", "pyproject.toml", "example.env", ".github", "pytest.ini", ".coveragerc"])
     run_git(["commit", "-m", "chore: initial project repository setup, CI pipelines, and licensing"], d1)
     
     # 2. Phase 1: Foundation (Aug 08, 2026)
